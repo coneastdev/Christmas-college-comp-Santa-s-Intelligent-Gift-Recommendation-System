@@ -30,11 +30,8 @@ def loadAppSettingsFromDisk() -> AppSettings:
     try:
         with settingsPath.open("r", encoding="utf-8") as settingsFile:
             rawData = json.load(settingsFile)
-
-        return AppSettings(
-            appearanceMode=str(rawData.get("appearanceMode", "dark")),
-            colorTheme=str(rawData.get("colorTheme", "blue")),
-        )
+        return AppSettings(appearanceMode=str(rawData.get("appearanceMode", "dark")), colorTheme=str(rawData.get("colorTheme", "blue")))
+    
     except Exception as error:
         print("Error loading app settings: ", error)
         traceback.print_exc()
@@ -75,14 +72,12 @@ class App(ctk.CTk):
         self.mainTabFrame: ctk.CTkFrame = self.tabView.tab("Main")
         self.settingsTabFrame: ctk.CTkFrame = self.tabView.tab("Settings")
 
-
         self.buildMainTab()
         self.buildSettingsTab()
 
-
-
     def buildMainTab(self) -> None:
         pass
+
 
     def buildSettingsTab(self) -> None:
         settingsContainer: ctk.CTkFrame = ctk.CTkFrame(master=self.settingsTabFrame)
@@ -114,7 +109,6 @@ class App(ctk.CTk):
     def saveSettings(self) -> None:
         saveAppSettingsToDisk(self.appSettings)
 
-
     def onAppearanceModeChanged(self, value: str) -> None:
         normalizedValue: str = value.lower()
         if normalizedValue == "light":
@@ -131,13 +125,6 @@ class App(ctk.CTk):
         self.appSettings.colorTheme = value
         ctk.set_default_color_theme(self.currentColorTheme)
         self.saveSettings()
-
-class SettingsWindow(ctk.CTk):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.title("Settings Window")
-        self.geometry(f"{400}x{300}")
 
 
 if __name__ == "__main__":
