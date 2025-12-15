@@ -1,10 +1,10 @@
 import csv, sqlite3
 
-con = sqlite3.connect("./childrenDatatemp.db")
+con = sqlite3.connect("./DB/childrensData.db")
 cur = con.cursor()
 
 # insert history table from csv
-cur.execute("CREATE TABLE history (child_id, last_year_gift, gift_satisfaction_rating);")
+cur.execute("CREATE TABLE IF NOT EXISTS history (child_id, last_year_gift, gift_satisfaction_rating);")
 
 with open('./DB/csv/past_gift_history_large.csv','r', encoding="utf8") as fin:
     dr = csv.DictReader(fin)
@@ -14,7 +14,7 @@ cur.executemany("INSERT INTO history (child_id, last_year_gift, gift_satisfactio
 con.commit()
 
 # insert intrests table from csv
-cur.execute("CREATE TABLE intrests (child_id, primary_interest, secondary_interest);")
+cur.execute("CREATE TABLE IF NOT EXISTS intrests (child_id, primary_interest, secondary_interest);")
 
 with open('./DB/csv/interests_large.csv','r', encoding="utf8") as fin:
     dr = csv.DictReader(fin)
@@ -24,7 +24,7 @@ cur.executemany("INSERT INTO intrests (child_id, primary_interest, secondary_int
 con.commit()
 
 # insert wishlist table from csv
-cur.execute("CREATE TABLE wishlist (child_id, name, wishlist_items, submitted_date);")
+cur.execute("CREATE TABLE IF NOT EXISTS wishlist (child_id, name, wishlist_items, submitted_date);")
 
 with open('./DB/csv/wishlist_large.csv','r', encoding="utf8") as fin:
     dr = csv.DictReader(fin)
