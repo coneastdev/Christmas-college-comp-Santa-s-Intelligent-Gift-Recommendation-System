@@ -45,7 +45,8 @@ for g in history + formatted_wishlist:
 print(gift_list)
 
 # get age limits and categorys
-cur.execute("CREATE TABLE IF NOT EXISTS gifts (gift, age_limit, category);")
+cur.execute("DROP TABLE gifts")
+cur.execute("CREATE TABLE gifts (gift, age_limit, category);")
 
 for gift in gift_list:
     print("\n" + gift)
