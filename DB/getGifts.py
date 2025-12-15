@@ -1,54 +1,54 @@
 import sqlite3
 
-con = sqlite3.connect("./DB/childrensData.db")
-cur = con.cursor()
+connect = sqlite3.connect("./DB/childrensData.db")
+cursor = connect.cursor()
 
 # fetch and flatten history (handles comma-separated cells)
-cur.execute("SELECT DISTINCT last_year_gift FROM history;")
-rows = cur.fetchall()
+cursor.execute("SELECT DISTINCT last_year_gift FROM history;")
+rows = cursor.fetchall()
 history = []
 for row in rows:
-    val = row[0]
-    if val is None:
+    value = row[0]
+    if value is None:
         continue
-    parts = [p.strip() for p in str(val).split(',') if p.strip()]
+    parts = [part.strip() for part in str(value).split(',') if part.strip()]
     history.extend(parts)
 # keep order, remove duplicates
 history = list(dict.fromkeys(history))
 
 # fetch wishlists
-cur.execute("SELECT wishlist_items FROM wishlist;")
-rows = cur.fetchall()
-formatted_wishlist = []
+cursor.execute("SELECT wishlist_items FROM wishlist;")
+rows = cursor.fetchall()
+formattedWishlist = []
 for row in rows:
-    val = row[0]
-    if val is None:
+    value = row[0]
+    if value is None:
         continue
-    parts = [p.strip() for p in str(val).split(',') if p.strip()]
+    parts = [part.strip() for part in str(value).split(',') if part.strip()]
     for gift in parts:
-        if gift not in formatted_wishlist:
-            formatted_wishlist.append(gift)
+        if gift not in formattedWishlist:
+            formattedWishlist.append(gift)
 
 # remove gifts already in history
-formatted_wishlist = [g for g in formatted_wishlist if g not in history]
+formattedWishlist = [gift for gift in formattedWishlist if gift not in history]
 
 # build final gift list with dedupe
 seen = set()
-gift_list = []
-for g in history + formatted_wishlist:
-    g = g.strip()
-    if not g or g in seen:
+giftList = []
+for gift in history + formattedWishlist:
+    ggift = gift.strip()
+    if not gift or gift in seen:
         continue
-    seen.add(g)
-    gift_list.append(g)
+    seen.add(gift)
+    giftList.append(gift)
 
-print(gift_list)
+print(giftList)
 
 # get age limits and categorys
-cur.execute("DROP TABLE gifts")
-cur.execute("CREATE TABLE gifts (gift, age_limit, category);")
+cursor.execute("DROP TABLE gifts")
+cursor.execute("CREATE TABLE gifts (gift, age_limit, category);")
 
-for gift in gift_list:
+for gift in giftList:
     print("\n" + gift)
     while True:
         try:
@@ -57,18 +57,18 @@ for gift in gift_list:
         except:
             print("not a valid number\n")
     category = input("enter category $ ")
-    con.execute("INSERT INTO gifts (gift, age_limit, category) VALUES (?, ?, ?)", [gift, ageLimit, category])
+    connect.execute("INSERT INTO gifts (gift, age_limit, category) VALUES (?, ?, ?)", [gift, ageLimit, category])
     
-con.commit()
+connect.commit()
 
-cur.execute("SELECT * FROM gifts;")
+cursor.execute("SELECT * FROM gifts;")
 
-print(cur.fetchall())
+print(cursor.fetchall())
 
 # add gifts to gifts table
-cur.execute("CREATE TABLE IF NOT EXISTS gifts (gift, age_limit, category);")
+cursor.execute("CREATE TABLE IF NOT EXISTS gifts (gift, age_limit, category);")
 
-for gift in gift_list:
+for gift in giftList:
     print("\n" + gift)
     while True:
         try:
@@ -77,10 +77,10 @@ for gift in gift_list:
         except:
             print("not a valid number\n")
     category = input("enter category $ ")
-    con.execute("INSERT INTO gifts (gift, age_limit, category) VALUES (?, ?, ?)", [gift, ageLimit, category])
+    connect.execute("INSERT INTO gifts (gift, age_limit, category) VALUES (?, ?, ?)", [gift, ageLimit, category])
     
-con.commit()
+connect.commit()
 
-cur.execute("SELECT * FROM gifts;")
+cursor.execute("SELECT * FROM gifts;")
 
-print(cur.fetchall())
+print(cursor.fetchall())
