@@ -843,7 +843,7 @@ class app(ctk.CTk):
 
         uiDir: Path = getUiThemeDirPath()
         for themePath in sorted(uiDir.glob("*.json")):
-            displayName: str = f"custom: {themePath.stem}"
+            displayName: str = f"custom:{themePath.stem}"
             choices[displayName] = str(themePath)
 
         self.uiThemeChoices = choices
@@ -854,12 +854,12 @@ class app(ctk.CTk):
 
         plotDir: Path = getPlotThemeDirPath()
         for themePath in sorted(plotDir.glob("*.json")):
-            displayName: str = f"Aquarel: {themePath.stem}"
+            displayName: str = f"Aquarel:{themePath.stem}"
             choices[displayName] = str(themePath)
 
         commonMatplotlib: List[str] = ["classic", "ggplot"]
         for styleName in commonMatplotlib:
-            choices[f"Matplotlib: {styleName}"] = styleName
+            choices[f"Matplotlib:{styleName}"] = styleName
 
         self.plotThemeChoices = choices
         return list(choices.keys())
@@ -901,6 +901,7 @@ class app(ctk.CTk):
     def applyPlotTheme(self, themeValue: str) -> None:
         try:
             import matplotlib as mpl #type: ignore
+            import matplotlib.pyplot as plt
         except Exception:
             return
 
@@ -912,7 +913,6 @@ class app(ctk.CTk):
         if themeValue.lower().endswith(".json"):
             try:
                 from aquarel import Theme #type: ignore
-
                 theme = Theme.from_file(themeValue)
                 theme.apply()
                 return
@@ -921,8 +921,6 @@ class app(ctk.CTk):
                 return
 
         try:
-            import matplotlib.pyplot as plt
-
             plt.style.use(themeValue)
         except Exception:
             mpl.rcParams.update(mpl.rcParamsDefault)
@@ -1543,15 +1541,6 @@ class app(ctk.CTk):
         lines.append(f"- interests text used: {(primaryInterest + ' ' + secondaryInterest).strip() or '(empty)'}")
         lines.append(f"- last year gift: {lastYearGift or '(none)'}")
         lines.append(f"- last year satisfaction (0-5): {rating}")
-        lines.append("")
-        lines.append("What happens under the hood (high level):")
-        lines.append("1) The app builds a single 'query text' from interests + wishlist, with repeats to weight them.")
-        lines.append("2) It embeds that text and every gift row into vectors (all-MiniLM-L6-v2).")
-        lines.append("3) It ranks gifts by cosine similarity (dot product because vectors are normalized).")
-        if lastYearGift and rating <= 2:
-            lines.append("4) Because last year's rating is low, it also subtracts a penalty for gifts similar to last year's gift.")
-        if rejected:
-            lines.append(f"5) Rejected gifts for this child are excluded: {', '.join(sorted(rejected))}")
         lines.append("")
         lines.append("Top matches (score is similarity after penalty): ")
         
