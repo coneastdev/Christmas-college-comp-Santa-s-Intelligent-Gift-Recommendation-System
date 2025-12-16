@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from recomender import recomendGift, getChildData
-
 import csv
 import hashlib
 import json
