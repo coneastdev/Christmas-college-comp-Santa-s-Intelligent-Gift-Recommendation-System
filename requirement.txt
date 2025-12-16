@@ -1,0 +1,6 @@
+customtkinter>=5.2.0
+sentence-transformers>=2.2.2
+numpy>=1.23
+matplotlib>=3.7
+aquarel>=0.0.6
+torch>=2.0

@@ -1,0 +1,77 @@
+This system chooses a gift for each child by comparing what the child likes including their wishlist, interests, and feedback from last year with a catalog of available gifts that contains the gift name, category, and age limit.
+
+Instead of using simple keyword matching, 
+the system uses a text embedding model. An embedding model converts human language (for example, "lego" or "building toys") into numerical vectors. 
+Words or phrases with similar meanings end up with vectors that are close together in this vector space. 
+This allows the system to understand similarity in meaning, not just exact word matches.
+
+
+Why embeddings are used
+Children may describe similar interests using different words. For example:
+“lego”
+“building blocks”
+“construction toys”
+A traditional string or keyword match would treat these as different, unrelated inputs. 
+By using embeddings, the system can recognise that these phrases are semantically similar, increasing the chance of recommending an appropriate gift even when wording differs.
+
+
+Building the query text
+Before the model can recommend a gift, the system must create a single query text that represents the child’s preferences. This query text is built from:
+the child’s primary and secondary interests
+the child’s wishlist text
+optional context from last year’s gift and satisfaction rating
+This combined text is then converted into an embedding vector and compared against the gift embeddings.
+
+
+Interests (repeated ×4):
+music puzzles music puzzles music puzzles music puzzles
+
+Wishlist (repeated ×3):
+robot toy doll keyboard robot toy doll keyboard robot toy doll keyboard
+
+Last year gift context (rating ≥ 4 → positive):
+liked last year: science kit
+liked last year: science kit
+
+Final query text
+music puzzles music puzzles music puzzles music puzzles
+robot toy doll keyboard robot toy doll keyboard robot toy doll keyboard
+liked last year: science kit liked last year: science kit
+
+
+Convert query text to an embedding
+Query embedding (simplified):
+[ 0.12, -0.45, 0.88, 0.31, -0.07, ... ]
+(Real vectors are 384 numbers long. this is just an example.)
+
+Gift catalog
+gift: Robot toy. category: Tech. ageLimit: 6+
+
+And then an embedding:
+Robot toy embedding -> [0.10, -0.44, 0.91, 0.29, ...]
+
+Why interests and wishlist are weighted
+Not all parts of the child’s profile are equally important. To signal importance to the model, the system weights certain information by repeating it in the query text:
+Interests are repeated more times because they represent long-term preferences.
+Wishlist items are repeated slightly less, as they may be more short-term or situational.
+Last year’s gift is only included as context, and may introduce a penalty if it was disliked.
+Repeating text is a simple but effective way to influence the embedding without training a custom model. 
+Repetition causes those concepts to have more influence on the final vector representation.
+
+
+Use of last year’s feedback
+If a child rated last year’s gift poorly, the system applies a penalty to gifts that are similar to that gift. This is done by:
+Embedding the phrase "similar to: last year gift"
+Measuring similarity between this embedding and each gift
+Subtracting a weighted penalty from the gift’s score
+This prevents the system from recommending gifts that are similar to something the child already disliked, even if they match the child’s interests.
+
+
+Scoring and selection
+For each gift:
+A similarity score is calculated using a dot product
+Any penalty is applied if necessary.
+Rejected gifts are excluded.
+The highest-scoring remaining gift is selected.
+The raw similarity score is then converted into a happiness likelihood percentage using a sigmoid curve.
+This provides a more intuitive explanation for users than a raw similarity number.
